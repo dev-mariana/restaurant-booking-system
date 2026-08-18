@@ -3,6 +3,7 @@
     "target": "ESNext",
     "module": "NodeNext",
     "strict": true,
+    "strictPropertyInitialization": false,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["node"],
@@ -11,5 +12,6 @@
     "rootDir": "./src",
     "outDir": "./dist"
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "vitest.config.ts"]
 }
