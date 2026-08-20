@@ -11,8 +11,8 @@ export class Reservation {
 }
 
 export enum ReservationStatus {
-  PENDING = "Pending",
-  CONFIRMED = "Confirmed",
-  REJECTED = "Rejected",
-  CANCELLED = "Cancelled",
+  Pending = "Pending",
+  Confirmed = "Confirmed",
+  Rejected = "Rejected",
+  Cancelled = "Cancelled",
 }
