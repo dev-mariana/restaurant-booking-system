@@ -1,4 +1,5 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gt, lt } from "drizzle-orm";
+import { getDayRange } from "../../../../common/day-range.js";
 import {
   type Reservation,
   ReservationStatus,
@@ -32,6 +33,27 @@ export class ReservationRepository implements IReservationRepository {
       .select()
       .from(reservations)
       .where(eq(reservations.customerEmail, email));
+
+    return rows.map(ReservationMapper.toDomain);
+  }
+
+  async findConfirmedByTableAndDate(
+    tableId: string,
+    date: Date,
+  ): Promise<Reservation[]> {
+    const { start, end } = getDayRange(date);
+
+    const rows = await db
+      .select()
+      .from(reservations)
+      .where(
+        and(
+          eq(reservations.tableId, tableId),
+          eq(reservations.status, ReservationStatus.Confirmed),
+          lt(reservations.slotStart, end),
+          gt(reservations.slotEnd, start),
+        ),
+      );
 
     return rows.map(ReservationMapper.toDomain);
   }
