@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
+import { createId } from "../../../common/generate-id.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
@@ -8,8 +9,8 @@ import { ConfirmReservationService } from "./confirm-reservation.service.js";
 
 function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
   return Object.assign(new Reservation(), {
-    id: "reservation-1",
-    tableId: "table-1",
+    id: createId(),
+    tableId: createId(),
     customerName: "Mari",
     customerEmail: "mari@example.com",
     slotStart: new Date(2026, 7, 20, 19, 0),
@@ -86,7 +87,7 @@ describe("ConfirmReservationService", () => {
     const reservationRepository = new FakeReservationRepository([]);
     const service = new ConfirmReservationService(reservationRepository, cacheRepository);
 
-    await expect(service.execute("missing-reservation")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(service.execute(createId())).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("confirms the reservation when there is no overlapping confirmed reservation", async () => {
@@ -105,7 +106,8 @@ describe("ConfirmReservationService", () => {
   it("rejects the reservation when it overlaps an already confirmed reservation", async () => {
     const pending = makeReservation();
     const overlapping = makeReservation({
-      id: "reservation-2",
+      id: createId(),
+      tableId: pending.tableId,
       status: ReservationStatus.Confirmed,
     });
     const reservationRepository = new FakeReservationRepository([pending], [overlapping]);
@@ -122,7 +124,8 @@ describe("ConfirmReservationService", () => {
   it("does not overlap when the confirmed reservation is at a different time", async () => {
     const pending = makeReservation();
     const nonOverlapping = makeReservation({
-      id: "reservation-2",
+      id: createId(),
+      tableId: pending.tableId,
       status: ReservationStatus.Confirmed,
       slotStart: new Date(2026, 7, 20, 20, 0),
       slotEnd: new Date(2026, 7, 20, 21, 0),

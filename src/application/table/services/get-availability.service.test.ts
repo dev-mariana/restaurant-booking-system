@@ -1,16 +1,22 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
+import { createId } from "../../../common/generate-id.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
-import type { AvailabilitySlot } from "../../../domain/table/availability.js";
+import {
+  type AvailabilitySlot,
+  buildAvailabilityCacheKey,
+} from "../../../domain/table/availability.js";
 import { Table } from "../../../domain/table/table.entity.js";
 import type { ITableRepository } from "../../../domain/table/table.repository.js";
 import { GetAvailabilityService } from "./get-availability.service.js";
 
+const defaultTableId = createId();
+
 function makeTable(overrides: Partial<Table> = {}): Table {
   return Object.assign(new Table(), {
-    id: "table-1",
+    id: defaultTableId,
     name: "Mesa 1",
     capacity: 4,
     createdAt: new Date(),
@@ -21,8 +27,8 @@ function makeTable(overrides: Partial<Table> = {}): Table {
 
 function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
   return Object.assign(new Reservation(), {
-    id: "reservation-1",
-    tableId: "table-1",
+    id: createId(),
+    tableId: defaultTableId,
     customerName: "Mari",
     customerEmail: "mari@example.com",
     slotStart: new Date(2026, 7, 20, 19, 0),
@@ -109,7 +115,7 @@ describe("GetAvailabilityService", () => {
   });
 
   it("throws NotFoundError when the table does not exist", async () => {
-    await expect(service.execute("missing-table", new Date(2026, 7, 20))).rejects.toBeInstanceOf(
+    await expect(service.execute(createId(), new Date(2026, 7, 20))).rejects.toBeInstanceOf(
       NotFoundError,
     );
   });
@@ -123,7 +129,7 @@ describe("GetAvailabilityService", () => {
     ]);
     service = new GetAvailabilityService(tableRepository, reservationRepository, cacheRepository);
 
-    const slots = await service.execute("table-1", new Date(2026, 7, 20));
+    const slots = await service.execute(defaultTableId, new Date(2026, 7, 20));
 
     const occupiedSlot = slots.find((slot: AvailabilitySlot) => slot.start.getHours() === 19);
     expect(occupiedSlot?.available).toBe(false);
@@ -132,16 +138,17 @@ describe("GetAvailabilityService", () => {
 
   it("populates the cache after computing availability on a miss", async () => {
     const date = new Date(2026, 7, 20);
-    await service.execute("table-1", date);
+    await service.execute(defaultTableId, date);
 
-    const dateKey = date.toISOString().slice(0, 10);
-    const cached = await cacheRepository.get<AvailabilitySlot[]>(`availability:table-1:${dateKey}`);
+    const cached = await cacheRepository.get<AvailabilitySlot[]>(
+      buildAvailabilityCacheKey(defaultTableId, date),
+    );
     expect(cached).not.toBeNull();
   });
 
   it("returns the cached value without hitting the reservation repository again", async () => {
-    await service.execute("table-1", new Date(2026, 7, 20));
-    await service.execute("table-1", new Date(2026, 7, 20));
+    await service.execute(defaultTableId, new Date(2026, 7, 20));
+    await service.execute(defaultTableId, new Date(2026, 7, 20));
 
     expect(reservationRepository.findConfirmedByTableAndDateCalls).toBe(1);
   });

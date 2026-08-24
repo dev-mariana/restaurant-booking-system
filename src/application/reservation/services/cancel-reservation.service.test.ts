@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ConflictError } from "../../../common/errors/conflict-error.js";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
+import { createId } from "../../../common/generate-id.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
@@ -9,8 +10,8 @@ import { CancelReservationService } from "./cancel-reservation.service.js";
 
 function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
   return Object.assign(new Reservation(), {
-    id: "reservation-1",
-    tableId: "table-1",
+    id: createId(),
+    tableId: createId(),
     customerName: "Mari",
     customerEmail: "mari@example.com",
     slotStart: new Date(2026, 7, 20, 19, 0),
@@ -84,7 +85,7 @@ describe("CancelReservationService", () => {
     const reservationRepository = new FakeReservationRepository([]);
     const service = new CancelReservationService(reservationRepository, cacheRepository);
 
-    await expect(service.execute("missing-reservation")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(service.execute(createId())).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("cancels a pending reservation", async () => {

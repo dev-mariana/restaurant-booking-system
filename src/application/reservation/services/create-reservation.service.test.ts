@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
+import { createId } from "../../../common/generate-id.js";
 import type { IReservationQueue } from "../../../domain/queue/reservation-queue.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
@@ -8,9 +9,11 @@ import type { ITableRepository } from "../../../domain/table/table.repository.js
 import type { CreateReservationDTO } from "../schemas/create-reservation.schema.js";
 import { CreateReservationService } from "./create-reservation.service.js";
 
+const defaultTableId = createId();
+
 function makeTable(overrides: Partial<Table> = {}): Table {
   return Object.assign(new Table(), {
-    id: "table-1",
+    id: defaultTableId,
     name: "Mesa 1",
     capacity: 4,
     createdAt: new Date(),
@@ -21,7 +24,7 @@ function makeTable(overrides: Partial<Table> = {}): Table {
 
 function makeDto(overrides: Partial<CreateReservationDTO> = {}): CreateReservationDTO {
   return {
-    tableId: "table-1",
+    tableId: defaultTableId,
     customerName: "Mari",
     customerEmail: "mari@example.com",
     slotStart: new Date(2026, 7, 20, 19, 0),
@@ -100,7 +103,7 @@ describe("CreateReservationService", () => {
   });
 
   it("throws NotFoundError when the table does not exist", async () => {
-    await expect(service.execute(makeDto({ tableId: "missing-table" }))).rejects.toBeInstanceOf(
+    await expect(service.execute(makeDto({ tableId: createId() }))).rejects.toBeInstanceOf(
       NotFoundError,
     );
   });

@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { createId } from "../../../common/generate-id.js";
 import { Table } from "../../../domain/table/table.entity.js";
 import type { ITableRepository } from "../../../domain/table/table.repository.js";
 import { ListTablesService } from "./list-tables.service.js";
 
 function makeTable(overrides: Partial<Table> = {}): Table {
   return Object.assign(new Table(), {
-    id: "table-1",
+    id: createId(),
     name: "Mesa 1",
     capacity: 4,
     createdAt: new Date(),
@@ -28,7 +29,7 @@ class FakeTableRepository implements ITableRepository {
 
 describe("ListTablesService", () => {
   it("returns all tables from the repository", async () => {
-    const tables = [makeTable({ id: "table-1" }), makeTable({ id: "table-2" })];
+    const tables = [makeTable(), makeTable()];
     const service = new ListTablesService(new FakeTableRepository(tables));
 
     const result = await service.execute();

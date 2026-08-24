@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { createId } from "../../common/generate-id.js";
 import { Reservation, ReservationStatus } from "../reservation/reservation.entity.js";
 import { computeAvailability } from "./availability.js";
 
 function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
   return Object.assign(new Reservation(), {
-    id: "reservation-1",
-    tableId: "table-1",
+    id: createId(),
+    tableId: createId(),
     customerName: "Mari",
     customerEmail: "mari@example.com",
     slotStart: new Date(2026, 7, 20, 19, 0),
