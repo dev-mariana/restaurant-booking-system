@@ -6,5 +6,4 @@ export interface IReservationRepository {
   findByCustomerEmail(email: string): Promise<Reservation[]>;
   findConfirmedByTableAndDate(tableId: string, date: Date): Promise<Reservation[]>;
   updateStatus(id: string, status: ReservationStatus): Promise<Reservation>;
-  cancelReservation(id: string): Promise<void>;
 }

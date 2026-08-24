@@ -58,11 +58,4 @@ export class ReservationRepository implements IReservationRepository {
 
     return ReservationMapper.toDomain(row);
   }
-
-  async cancelReservation(id: string): Promise<void> {
-    await db
-      .update(reservations)
-      .set({ status: ReservationStatus.Cancelled })
-      .where(eq(reservations.id, id));
-  }
 }

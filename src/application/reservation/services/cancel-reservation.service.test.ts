@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { ConflictError } from "../../../common/errors/conflict-error.js";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
 import { buildAvailabilityCacheKey } from "../../../domain/table/availability.js";
-import { ConfirmReservationService } from "./confirm-reservation.service.js";
+import { CancelReservationService } from "./cancel-reservation.service.js";
 
 function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
   return Object.assign(new Reservation(), {
@@ -24,10 +25,7 @@ function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
 class FakeReservationRepository implements IReservationRepository {
   public updatedStatuses: { id: string; status: ReservationStatus }[] = [];
 
-  constructor(
-    private readonly reservations: Reservation[],
-    private readonly confirmedOnTable: Reservation[] = [],
-  ) {}
+  constructor(private readonly reservations: Reservation[]) {}
 
   async create(): Promise<Reservation> {
     throw new Error("not implemented");
@@ -42,7 +40,7 @@ class FakeReservationRepository implements IReservationRepository {
   }
 
   async findConfirmedByTableAndDate(): Promise<Reservation[]> {
-    return this.confirmedOnTable;
+    return [];
   }
 
   async updateStatus(id: string, status: ReservationStatus): Promise<Reservation> {
@@ -75,7 +73,7 @@ class FakeCacheRepository implements ICacheRepository {
   }
 }
 
-describe("ConfirmReservationService", () => {
+describe("CancelReservationService", () => {
   let cacheRepository: FakeCacheRepository;
 
   beforeEach(() => {
@@ -84,61 +82,56 @@ describe("ConfirmReservationService", () => {
 
   it("throws NotFoundError when the reservation does not exist", async () => {
     const reservationRepository = new FakeReservationRepository([]);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
     await expect(service.execute("missing-reservation")).rejects.toBeInstanceOf(NotFoundError);
   });
 
-  it("confirms the reservation when there is no overlapping confirmed reservation", async () => {
-    const pending = makeReservation();
-    const reservationRepository = new FakeReservationRepository([pending], []);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+  it("cancels a pending reservation", async () => {
+    const pending = makeReservation({ status: ReservationStatus.Pending });
+    const reservationRepository = new FakeReservationRepository([pending]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
     const result = await service.execute(pending.id);
 
-    expect(result.status).toBe(ReservationStatus.Confirmed);
+    expect(result.status).toBe(ReservationStatus.Cancelled);
     expect(reservationRepository.updatedStatuses).toEqual([
-      { id: pending.id, status: ReservationStatus.Confirmed },
+      { id: pending.id, status: ReservationStatus.Cancelled },
     ]);
   });
 
-  it("rejects the reservation when it overlaps an already confirmed reservation", async () => {
-    const pending = makeReservation();
-    const overlapping = makeReservation({
-      id: "reservation-2",
-      status: ReservationStatus.Confirmed,
-    });
-    const reservationRepository = new FakeReservationRepository([pending], [overlapping]);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+  it("cancels a confirmed reservation", async () => {
+    const confirmed = makeReservation({ status: ReservationStatus.Confirmed });
+    const reservationRepository = new FakeReservationRepository([confirmed]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
-    const result = await service.execute(pending.id);
+    const result = await service.execute(confirmed.id);
 
-    expect(result.status).toBe(ReservationStatus.Rejected);
-    expect(reservationRepository.updatedStatuses).toEqual([
-      { id: pending.id, status: ReservationStatus.Rejected },
-    ]);
+    expect(result.status).toBe(ReservationStatus.Cancelled);
   });
 
-  it("does not overlap when the confirmed reservation is at a different time", async () => {
-    const pending = makeReservation();
-    const nonOverlapping = makeReservation({
-      id: "reservation-2",
-      status: ReservationStatus.Confirmed,
-      slotStart: new Date(2026, 7, 20, 20, 0),
-      slotEnd: new Date(2026, 7, 20, 21, 0),
-    });
-    const reservationRepository = new FakeReservationRepository([pending], [nonOverlapping]);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+  it("throws ConflictError when the reservation is already cancelled", async () => {
+    const cancelled = makeReservation({ status: ReservationStatus.Cancelled });
+    const reservationRepository = new FakeReservationRepository([cancelled]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
-    const result = await service.execute(pending.id);
+    await expect(service.execute(cancelled.id)).rejects.toBeInstanceOf(ConflictError);
+    expect(reservationRepository.updatedStatuses).toHaveLength(0);
+  });
 
-    expect(result.status).toBe(ReservationStatus.Confirmed);
+  it("throws ConflictError when the reservation is already rejected", async () => {
+    const rejected = makeReservation({ status: ReservationStatus.Rejected });
+    const reservationRepository = new FakeReservationRepository([rejected]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
+
+    await expect(service.execute(rejected.id)).rejects.toBeInstanceOf(ConflictError);
+    expect(reservationRepository.updatedStatuses).toHaveLength(0);
   });
 
   it("invalidates the availability cache for the reservation's table and date", async () => {
     const pending = makeReservation();
-    const reservationRepository = new FakeReservationRepository([pending], []);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+    const reservationRepository = new FakeReservationRepository([pending]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
     await service.execute(pending.id);
 
@@ -147,15 +140,12 @@ describe("ConfirmReservationService", () => {
     ]);
   });
 
-  it("returns the reservation as-is without re-evaluating when it is not pending", async () => {
-    const confirmed = makeReservation({ status: ReservationStatus.Confirmed });
-    const reservationRepository = new FakeReservationRepository([confirmed], []);
-    const service = new ConfirmReservationService(reservationRepository, cacheRepository);
+  it("does not touch the cache when cancellation is rejected", async () => {
+    const cancelled = makeReservation({ status: ReservationStatus.Cancelled });
+    const reservationRepository = new FakeReservationRepository([cancelled]);
+    const service = new CancelReservationService(reservationRepository, cacheRepository);
 
-    const result = await service.execute(confirmed.id);
-
-    expect(result.status).toBe(ReservationStatus.Confirmed);
-    expect(reservationRepository.updatedStatuses).toHaveLength(0);
+    await expect(service.execute(cancelled.id)).rejects.toBeInstanceOf(ConflictError);
     expect(cacheRepository.deletedKeys).toHaveLength(0);
   });
 });
