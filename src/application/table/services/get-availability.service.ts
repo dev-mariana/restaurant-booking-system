@@ -4,6 +4,7 @@ import type { ICacheRepository } from "../../../domain/cache/cache.repository.js
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
 import {
   type AvailabilitySlot,
+  buildAvailabilityCacheKey,
   computeAvailability,
 } from "../../../domain/table/availability.js";
 import type { ITableRepository } from "../../../domain/table/table.repository.js";
@@ -25,7 +26,7 @@ export class GetAvailabilityService {
     }
 
     const { start: dayStart } = getDayRange(date);
-    const cacheKey = this.buildCacheKey(tableId, dayStart);
+    const cacheKey = buildAvailabilityCacheKey(tableId, dayStart);
 
     const cached = await this.cacheRepository.get<AvailabilitySlot[]>(cacheKey);
 
@@ -41,22 +42,15 @@ export class GetAvailabilityService {
     dayStart: Date,
     cacheKey: string,
   ): Promise<AvailabilitySlot[]> {
-    const confirmedReservations =
-      await this.reservationRepository.findConfirmedByTableAndDate(
-        tableId,
-        dayStart,
-      );
+    const confirmedReservations = await this.reservationRepository.findConfirmedByTableAndDate(
+      tableId,
+      dayStart,
+    );
 
     const slots = computeAvailability(dayStart, confirmedReservations);
 
     await this.cacheRepository.set(cacheKey, slots, CACHE_TTL_SECONDS);
 
     return slots;
-  }
-
-  private buildCacheKey(tableId: string, dayStart: Date): string {
-    const dateKey = dayStart.toISOString().slice(0, 10);
-
-    return `availability:${tableId}:${dateKey}`;
   }
 }

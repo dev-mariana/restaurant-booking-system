@@ -11,6 +11,12 @@ export type AvailabilitySlot = {
   available: boolean;
 };
 
+export function buildAvailabilityCacheKey(tableId: string, date: Date): string {
+  const dateKey = date.toISOString().slice(0, 10);
+
+  return `availability:${tableId}:${dateKey}`;
+}
+
 export function computeAvailability(
   dayStart: Date,
   confirmedReservations: Reservation[],
