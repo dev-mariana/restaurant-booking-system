@@ -49,6 +49,16 @@ export class ReservationRepository implements IReservationRepository {
     return rows.map(ReservationMapper.toDomain);
   }
 
+  async updateStatus(id: string, status: ReservationStatus): Promise<Reservation> {
+    const [row] = await db
+      .update(reservations)
+      .set({ status })
+      .where(eq(reservations.id, id))
+      .returning();
+
+    return ReservationMapper.toDomain(row);
+  }
+
   async cancelReservation(id: string): Promise<void> {
     await db
       .update(reservations)

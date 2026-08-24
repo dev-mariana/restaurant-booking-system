@@ -74,6 +74,10 @@ class FakeReservationRepository implements IReservationRepository {
     return this.reservations;
   }
 
+  async updateStatus(): Promise<Reservation> {
+    throw new Error("not implemented");
+  }
+
   async cancelReservation(): Promise<void> {}
 }
 
