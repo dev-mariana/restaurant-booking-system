@@ -2,7 +2,6 @@ import type {
   Reservation,
   ReservationStatus,
 } from "../../../../domain/reservation/reservation.entity.js";
-import type { NewReservation } from "../../../../domain/reservation/reservation.repository.js";
 import type { reservations } from "../schema.js";
 
 type ReservationRow = typeof reservations.$inferSelect;
@@ -24,7 +23,7 @@ export class ReservationMapper {
     };
   }
 
-  static toDrizzle(reservation: NewReservation): NewReservationRow {
+  static toDrizzle(reservation: Omit<Reservation, "updatedAt">): NewReservationRow {
     return {
       id: reservation.id,
       tableId: reservation.tableId,

@@ -4,16 +4,13 @@ import {
   type Reservation,
   ReservationStatus,
 } from "../../../../domain/reservation/reservation.entity.js";
-import type {
-  IReservationRepository,
-  NewReservation,
-} from "../../../../domain/reservation/reservation.repository.js";
+import type { IReservationRepository } from "../../../../domain/reservation/reservation.repository.js";
 import { db } from "../config.js";
 import { ReservationMapper } from "../mappers/reservation.mapper.js";
 import { reservations } from "../schema.js";
 
 export class ReservationRepository implements IReservationRepository {
-  async create(reservation: NewReservation): Promise<Reservation> {
+  async create(reservation: Omit<Reservation, "updatedAt">): Promise<Reservation> {
     const [row] = await db
       .insert(reservations)
       .values(ReservationMapper.toDrizzle(reservation))

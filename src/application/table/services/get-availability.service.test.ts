@@ -2,10 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
-import type {
-  IReservationRepository,
-  NewReservation,
-} from "../../../domain/reservation/reservation.repository.js";
+import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
 import type { AvailabilitySlot } from "../../../domain/table/availability.js";
 import { Table } from "../../../domain/table/table.entity.js";
 import type { ITableRepository } from "../../../domain/table/table.repository.js";
@@ -54,7 +51,7 @@ class FakeReservationRepository implements IReservationRepository {
 
   constructor(private readonly reservations: Reservation[]) {}
 
-  async create(reservation: NewReservation): Promise<Reservation> {
+  async create(reservation: Omit<Reservation, "updatedAt">): Promise<Reservation> {
     return Object.assign(new Reservation(), {
       ...reservation,
       updatedAt: reservation.createdAt,
