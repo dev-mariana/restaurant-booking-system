@@ -4,13 +4,16 @@ import {
   type Reservation,
   ReservationStatus,
 } from "../../../../domain/reservation/reservation.entity.js";
-import type { IReservationRepository } from "../../../../domain/reservation/reservation.repository.js";
+import type {
+  IReservationRepository,
+  NewReservation,
+} from "../../../../domain/reservation/reservation.repository.js";
 import { db } from "../config.js";
 import { ReservationMapper } from "../mappers/reservation.mapper.js";
 import { reservations } from "../schema.js";
 
 export class ReservationRepository implements IReservationRepository {
-  async create(reservation: Reservation): Promise<Reservation> {
+  async create(reservation: NewReservation): Promise<Reservation> {
     const [row] = await db
       .insert(reservations)
       .values(ReservationMapper.toDrizzle(reservation))
@@ -20,27 +23,18 @@ export class ReservationRepository implements IReservationRepository {
   }
 
   async findById(id: string): Promise<Reservation | null> {
-    const [row] = await db
-      .select()
-      .from(reservations)
-      .where(eq(reservations.id, id));
+    const [row] = await db.select().from(reservations).where(eq(reservations.id, id));
 
     return row ? ReservationMapper.toDomain(row) : null;
   }
 
   async findByCustomerEmail(email: string): Promise<Reservation[]> {
-    const rows = await db
-      .select()
-      .from(reservations)
-      .where(eq(reservations.customerEmail, email));
+    const rows = await db.select().from(reservations).where(eq(reservations.customerEmail, email));
 
     return rows.map(ReservationMapper.toDomain);
   }
 
-  async findConfirmedByTableAndDate(
-    tableId: string,
-    date: Date,
-  ): Promise<Reservation[]> {
+  async findConfirmedByTableAndDate(tableId: string, date: Date): Promise<Reservation[]> {
     const { start, end } = getDayRange(date);
 
     const rows = await db
