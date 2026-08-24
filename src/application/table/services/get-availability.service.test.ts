@@ -51,10 +51,12 @@ class FakeReservationRepository implements IReservationRepository {
 
   constructor(private readonly reservations: Reservation[]) {}
 
-  async create(reservation: Omit<Reservation, "updatedAt">): Promise<Reservation> {
+  async create(reservation: Omit<Reservation, "createdAt" | "updatedAt">): Promise<Reservation> {
+    const now = new Date();
     return Object.assign(new Reservation(), {
       ...reservation,
-      updatedAt: reservation.createdAt,
+      createdAt: now,
+      updatedAt: now,
     });
   }
 

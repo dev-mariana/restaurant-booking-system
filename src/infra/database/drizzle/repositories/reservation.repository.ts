@@ -10,7 +10,7 @@ import { ReservationMapper } from "../mappers/reservation.mapper.js";
 import { reservations } from "../schema.js";
 
 export class ReservationRepository implements IReservationRepository {
-  async create(reservation: Omit<Reservation, "updatedAt">): Promise<Reservation> {
+  async create(reservation: Omit<Reservation, "createdAt" | "updatedAt">): Promise<Reservation> {
     const [row] = await db
       .insert(reservations)
       .values(ReservationMapper.toDrizzle(reservation))

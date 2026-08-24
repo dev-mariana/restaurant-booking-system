@@ -23,7 +23,7 @@ export class ReservationMapper {
     };
   }
 
-  static toDrizzle(reservation: Omit<Reservation, "updatedAt">): NewReservationRow {
+  static toDrizzle(reservation: Omit<Reservation, "createdAt" | "updatedAt">): NewReservationRow {
     return {
       id: reservation.id,
       tableId: reservation.tableId,
@@ -32,7 +32,6 @@ export class ReservationMapper {
       slotStart: reservation.slotStart,
       slotEnd: reservation.slotEnd,
       status: reservation.status,
-      createdAt: reservation.createdAt,
     };
   }
 }
