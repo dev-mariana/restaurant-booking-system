@@ -36,10 +36,7 @@ export class CreateReservationService {
 
     const created = await this.reservationRepository.create(reservation);
 
-    await this.reservationQueue.enqueueConfirmation(
-      created.id,
-      created.tableId,
-    );
+    await this.reservationQueue.enqueueConfirmation(created.id, created.tableId);
 
     return created;
   }

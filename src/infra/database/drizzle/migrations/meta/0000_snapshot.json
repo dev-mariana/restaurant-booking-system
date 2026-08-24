@@ -73,12 +73,8 @@
           "name": "reservations_table_id_tables_id_fk",
           "tableFrom": "reservations",
           "tableTo": "tables",
-          "columnsFrom": [
-            "table_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["table_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -139,12 +135,7 @@
     "public.reservation_status": {
       "name": "reservation_status",
       "schema": "public",
-      "values": [
-        "Pending",
-        "Confirmed",
-        "Rejected",
-        "Cancelled"
-      ]
+      "values": ["Pending", "Confirmed", "Rejected", "Cancelled"]
     }
   },
   "schemas": {},
