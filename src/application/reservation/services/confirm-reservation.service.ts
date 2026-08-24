@@ -4,7 +4,7 @@ import type { ICacheRepository } from "../../../domain/cache/cache.repository.js
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
-import { buildAvailabilityCacheKey } from "../../../domain/table/availability.js";
+import { invalidateAvailabilityCache } from "../invalidate-availability-cache.js";
 
 export class ConfirmReservationService {
   constructor(
@@ -29,7 +29,7 @@ export class ConfirmReservationService {
 
     const updated = await this.reservationRepository.updateStatus(reservationId, status);
 
-    await this.invalidateAvailabilityCache(reservation);
+    await invalidateAvailabilityCache(this.cacheRepository, reservation);
 
     return updated;
   }
@@ -45,12 +45,6 @@ export class ConfirmReservationService {
         { start: reservation.slotStart, end: reservation.slotEnd },
         { start: existing.slotStart, end: existing.slotEnd },
       ),
-    );
-  }
-
-  private async invalidateAvailabilityCache(reservation: Reservation): Promise<void> {
-    await this.cacheRepository.del(
-      buildAvailabilityCacheKey(reservation.tableId, reservation.slotStart),
     );
   }
 }
