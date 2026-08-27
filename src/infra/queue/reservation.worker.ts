@@ -6,7 +6,7 @@ import type { ConfirmReservationJobData } from "./bullmq.queue.adapter.js";
 
 const tableLocks = new Map<string, Promise<void>>();
 
-function runSerializedByTable<T>(tableId: string, task: () => Promise<T>): Promise<T> {
+export function runSerializedByTable<T>(tableId: string, task: () => Promise<T>): Promise<T> {
   const previousLock = tableLocks.get(tableId) ?? Promise.resolve();
   const run = previousLock.then(task, task);
 
