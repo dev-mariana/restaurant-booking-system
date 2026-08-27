@@ -1,3 +1,5 @@
+import { BadRequestError } from "./errors/bad-request-error.js";
+
 export type TimeSlot = {
   start: Date;
   end: Date;
@@ -5,7 +7,7 @@ export type TimeSlot = {
 
 export function createTimeSlot(start: Date, end: Date): TimeSlot {
   if (end <= start) {
-    throw new Error("slot_end must be after slot_start");
+    throw new BadRequestError("slot_end must be after slot_start");
   }
 
   return { start, end };

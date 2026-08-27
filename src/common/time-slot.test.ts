@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BadRequestError } from "./errors/bad-request-error.js";
 import { createTimeSlot, timeSlotsEqual, timeSlotsOverlap } from "./time-slot.js";
 
 describe("createTimeSlot", () => {
@@ -12,17 +13,19 @@ describe("createTimeSlot", () => {
     expect(slot.end).toBe(end);
   });
 
-  it("throws when end equals start", () => {
+  it("throws a BadRequestError when end equals start", () => {
     const time = new Date("2026-08-20T19:00:00Z");
 
     expect(() => createTimeSlot(time, time)).toThrow("slot_end must be after slot_start");
+    expect(() => createTimeSlot(time, time)).toThrow(BadRequestError);
   });
 
-  it("throws when end is before start", () => {
+  it("throws a BadRequestError when end is before start", () => {
     const start = new Date("2026-08-20T20:00:00Z");
     const end = new Date("2026-08-20T19:00:00Z");
 
     expect(() => createTimeSlot(start, end)).toThrow("slot_end must be after slot_start");
+    expect(() => createTimeSlot(start, end)).toThrow(BadRequestError);
   });
 });
 
