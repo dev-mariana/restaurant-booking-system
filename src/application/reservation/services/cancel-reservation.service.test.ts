@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { ConflictError } from "../../../common/errors/conflict-error.js";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
-import { createId } from "../../../common/generate-id.js";
+import { createId } from "../../../common/helpers/generate-id.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createId } from "../../common/generate-id.js";
+import { createId } from "../../common/helpers/generate-id.js";
 import { Reservation, ReservationStatus } from "../reservation/reservation.entity.js";
 import { computeAvailability } from "./availability.js";
 

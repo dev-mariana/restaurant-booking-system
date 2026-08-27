@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createId } from "../../common/generate-id.js";
+import { createId } from "../../common/helpers/generate-id.js";
 import { runSerializedByTable } from "./reservation.worker.js";
 
 function createDeferred<T>() {

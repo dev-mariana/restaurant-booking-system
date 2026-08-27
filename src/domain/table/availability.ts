@@ -1,4 +1,4 @@
-import { timeSlotsOverlap } from "../../common/time-slot.js";
+import { timeSlotsOverlap } from "../../common/helpers/time-slot.js";
 import type { Reservation } from "../reservation/reservation.entity.js";
 
 const OPENING_HOUR = 11;

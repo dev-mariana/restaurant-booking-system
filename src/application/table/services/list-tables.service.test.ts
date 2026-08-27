@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createId } from "../../../common/generate-id.js";
+import { createId } from "../../../common/helpers/generate-id.js";
 import { Table } from "../../../domain/table/table.entity.js";
 import type { ITableRepository } from "../../../domain/table/table.repository.js";
 import { ListTablesService } from "./list-tables.service.js";

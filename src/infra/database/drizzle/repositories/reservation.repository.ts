@@ -1,5 +1,5 @@
 import { and, eq, gt, lt } from "drizzle-orm";
-import { getDayRange } from "../../../../common/day-range.js";
+import { getDayRange } from "../../../../common/helpers/day-range.js";
 import {
   type Reservation,
   ReservationStatus,

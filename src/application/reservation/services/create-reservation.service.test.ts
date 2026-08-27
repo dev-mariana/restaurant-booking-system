@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
-import { createId } from "../../../common/generate-id.js";
+import { createId } from "../../../common/helpers/generate-id.js";
 import type { IReservationQueue } from "../../../domain/queue/reservation-queue.js";
 import { Reservation, ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";

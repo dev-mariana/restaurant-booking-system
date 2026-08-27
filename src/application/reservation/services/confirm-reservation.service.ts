@@ -1,5 +1,5 @@
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
-import { timeSlotsOverlap } from "../../../common/time-slot.js";
+import { timeSlotsOverlap } from "../../../common/helpers/time-slot.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";

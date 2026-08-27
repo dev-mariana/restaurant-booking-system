@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createId } from "../../common/generate-id.js";
+import { createId } from "../../common/helpers/generate-id.js";
 
 const addMock = vi.fn();
 

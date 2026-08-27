@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BadRequestError } from "./errors/bad-request-error.js";
+import { BadRequestError } from "../errors/bad-request-error.js";
 import { createTimeSlot, timeSlotsEqual, timeSlotsOverlap } from "./time-slot.js";
 
 describe("createTimeSlot", () => {

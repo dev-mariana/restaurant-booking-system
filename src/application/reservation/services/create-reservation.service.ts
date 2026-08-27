@@ -1,6 +1,6 @@
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
-import { createId } from "../../../common/generate-id.js";
-import { createTimeSlot } from "../../../common/time-slot.js";
+import { createId } from "../../../common/helpers/generate-id.js";
+import { createTimeSlot } from "../../../common/helpers/time-slot.js";
 import type { IReservationQueue } from "../../../domain/queue/reservation-queue.js";
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";

@@ -7,9 +7,7 @@ const availabilityQuerySchema = z.object({
   date: z.coerce.date(),
 });
 
-export function findTableAvailabilityController(
-  getAvailabilityService: GetAvailabilityService,
-) {
+export function findTableAvailabilityController(getAvailabilityService: GetAvailabilityService) {
   return async (c: Context) => {
     const { id } = c.req.param();
 

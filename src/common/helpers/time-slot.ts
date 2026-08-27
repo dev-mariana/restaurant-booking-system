@@ -1,4 +1,4 @@
-import { BadRequestError } from "./errors/bad-request-error.js";
+import { BadRequestError } from "../errors/bad-request-error.js";
 
 export type TimeSlot = {
   start: Date;

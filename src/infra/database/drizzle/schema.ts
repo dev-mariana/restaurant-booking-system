@@ -1,5 +1,5 @@
 import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { createId } from "../../../common/generate-id.js";
+import { createId } from "../../../common/helpers/generate-id.js";
 
 export const reservationStatusEnum = pgEnum("reservation_status", [
   "Pending",
