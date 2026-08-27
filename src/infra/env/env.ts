@@ -12,6 +12,7 @@ const envSchema = z.object({
   RESERVATION_QUEUE_NAME: z.string().min(1),
   CONFIRM_RESERVATION_JOB_NAME: z.string().min(1),
   WORKER_CONCURRENCY: z.coerce.number().int().positive(),
+  BULL_BOARD_BASE_PATH: z.string().min(1),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
