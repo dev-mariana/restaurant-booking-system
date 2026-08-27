@@ -11,6 +11,7 @@ const envSchema = z.object({
   REDIS_URL: z.url(),
   RESERVATION_QUEUE_NAME: z.string().min(1),
   CONFIRM_RESERVATION_JOB_NAME: z.string().min(1),
+  WORKER_CONCURRENCY: z.coerce.number().int().positive(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
