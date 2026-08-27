@@ -9,6 +9,8 @@ const envSchema = z.object({
   DATABASE_URL: z.url(),
   REDIS_PORT: z.coerce.number().int().positive(),
   REDIS_URL: z.url(),
+  RESERVATION_QUEUE_NAME: z.string().min(1),
+  CONFIRM_RESERVATION_JOB_NAME: z.string().min(1),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
