@@ -2,15 +2,22 @@ import { z } from "zod";
 
 export const createReservationSchema = z
   .object({
-    tableId: z.string().min(1),
-    customerName: z.string().min(1),
-    customerEmail: z.email(),
-    slotStart: z.coerce.date(),
-    slotEnd: z.coerce.date(),
+    table_id: z.string().min(1),
+    customer_name: z.string().min(1),
+    customer_email: z.email(),
+    slot_start: z.coerce.date(),
+    slot_end: z.coerce.date(),
   })
-  .refine((data) => data.slotEnd > data.slotStart, {
+  .refine((data) => data.slot_end > data.slot_start, {
     message: "slot_end must be after slot_start",
-    path: ["slotEnd"],
-  });
+    path: ["slot_end"],
+  })
+  .transform((data) => ({
+    tableId: data.table_id,
+    customerName: data.customer_name,
+    customerEmail: data.customer_email,
+    slotStart: data.slot_start,
+    slotEnd: data.slot_end,
+  }));
 
 export type CreateReservationDTO = z.infer<typeof createReservationSchema>;
