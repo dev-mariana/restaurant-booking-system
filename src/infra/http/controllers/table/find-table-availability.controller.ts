@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { z } from "zod";
 import type { GetAvailabilityService } from "../../../../application/table/services/get-availability.service.js";
 import { BadRequestError } from "../../../../common/errors/bad-request-error.js";
+import { formatZodError } from "../../../../common/helpers/format-zod-error.js";
 
 const availabilityQuerySchema = z.object({
   date: z.coerce.date(),
@@ -14,7 +15,7 @@ export function findTableAvailabilityController(getAvailabilityService: GetAvail
     const parsed = availabilityQuerySchema.safeParse(c.req.query());
 
     if (!parsed.success) {
-      throw new BadRequestError("Invalid query parameters");
+      throw new BadRequestError("Invalid query parameters", formatZodError(parsed.error));
     }
 
     const slots = await getAvailabilityService.execute(id, parsed.data.date);

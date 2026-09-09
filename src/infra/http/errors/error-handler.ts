@@ -13,7 +13,7 @@ export function errorHandler(err: Error, c: Context): Response {
   }
 
   if (err instanceof BadRequestError) {
-    return c.json({ message: err.message }, 400);
+    return c.json({ message: err.message, details: err.details }, 400);
   }
 
   console.error(err);
