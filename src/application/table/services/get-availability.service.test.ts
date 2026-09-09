@@ -31,8 +31,8 @@ function makeReservation(overrides: Partial<Reservation> = {}): Reservation {
     tableId: defaultTableId,
     customerName: "Mari",
     customerEmail: "mari@example.com",
-    slotStart: new Date(2026, 7, 20, 19, 0),
-    slotEnd: new Date(2026, 7, 20, 20, 0),
+    slotStart: new Date("2026-08-20T19:00:00.000Z"),
+    slotEnd: new Date("2026-08-20T20:00:00.000Z"),
     status: ReservationStatus.Confirmed,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -115,29 +115,29 @@ describe("GetAvailabilityService", () => {
   });
 
   it("throws NotFoundError when the table does not exist", async () => {
-    await expect(service.execute(createId(), new Date(2026, 7, 20))).rejects.toBeInstanceOf(
-      NotFoundError,
-    );
+    await expect(
+      service.execute(createId(), new Date("2026-08-20T00:00:00.000Z")),
+    ).rejects.toBeInstanceOf(NotFoundError);
   });
 
   it("computes availability from confirmed reservations on a cache miss", async () => {
     reservationRepository = new FakeReservationRepository([
       makeReservation({
-        slotStart: new Date(2026, 7, 20, 19, 0),
-        slotEnd: new Date(2026, 7, 20, 20, 0),
+        slotStart: new Date("2026-08-20T19:00:00.000Z"),
+        slotEnd: new Date("2026-08-20T20:00:00.000Z"),
       }),
     ]);
     service = new GetAvailabilityService(tableRepository, reservationRepository, cacheRepository);
 
-    const slots = await service.execute(defaultTableId, new Date(2026, 7, 20));
+    const slots = await service.execute(defaultTableId, new Date("2026-08-20T00:00:00.000Z"));
 
-    const occupiedSlot = slots.find((slot: AvailabilitySlot) => slot.start.getHours() === 19);
+    const occupiedSlot = slots.find((slot: AvailabilitySlot) => slot.start.getUTCHours() === 19);
     expect(occupiedSlot?.available).toBe(false);
     expect(slots.filter((slot: AvailabilitySlot) => slot.available)).toHaveLength(slots.length - 1);
   });
 
   it("populates the cache after computing availability on a miss", async () => {
-    const date = new Date(2026, 7, 20);
+    const date = new Date("2026-08-20T00:00:00.000Z");
     await service.execute(defaultTableId, date);
 
     const cached = await cacheRepository.get<AvailabilitySlot[]>(
@@ -147,8 +147,8 @@ describe("GetAvailabilityService", () => {
   });
 
   it("returns the cached value without hitting the reservation repository again", async () => {
-    await service.execute(defaultTableId, new Date(2026, 7, 20));
-    await service.execute(defaultTableId, new Date(2026, 7, 20));
+    await service.execute(defaultTableId, new Date("2026-08-20T00:00:00.000Z"));
+    await service.execute(defaultTableId, new Date("2026-08-20T00:00:00.000Z"));
 
     expect(reservationRepository.findConfirmedByTableAndDateCalls).toBe(1);
   });
