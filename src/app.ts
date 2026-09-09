@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { env } from "./infra/env/env.js";
+import { makeCancelReservationService } from "./infra/factories/make-cancel-reservation-service.js";
 import { makeCreateReservationService } from "./infra/factories/make-create-reservation-service.js";
 import { makeDependencies } from "./infra/factories/make-dependencies.js";
 import { makeGetAvailabilityService } from "./infra/factories/make-get-availability-service.js";
@@ -18,6 +19,7 @@ const getAvailabilityService = makeGetAvailabilityService(dependencies);
 const createReservationService = makeCreateReservationService(dependencies);
 const getReservationService = makeGetReservationService(dependencies);
 const listReservationsByEmailService = makeListReservationsByEmailService(dependencies);
+const cancelReservationService = makeCancelReservationService(dependencies);
 
 export const app = new Hono();
 
@@ -28,6 +30,7 @@ app.route(
     createReservationService,
     getReservationService,
     listReservationsByEmailService,
+    cancelReservationService,
   ),
 );
 app.route(env.BULL_BOARD_BASE_PATH, createBullBoardRoutes());
