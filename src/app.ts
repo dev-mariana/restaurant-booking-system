@@ -1,4 +1,5 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { Scalar } from "@scalar/hono-api-reference";
 import { env } from "./infra/env/env.js";
 import { makeCancelReservationService } from "./infra/factories/make-cancel-reservation-service.js";
 import { makeCreateReservationService } from "./infra/factories/make-create-reservation-service.js";
@@ -21,7 +22,7 @@ const getReservationService = makeGetReservationService(dependencies);
 const listReservationsByEmailService = makeListReservationsByEmailService(dependencies);
 const cancelReservationService = makeCancelReservationService(dependencies);
 
-export const app = new Hono();
+export const app = new OpenAPIHono();
 
 app.route("/tables", createTableRoutes(listTablesService, getAvailabilityService));
 app.route(
@@ -34,5 +35,15 @@ app.route(
   ),
 );
 app.route(env.BULL_BOARD_BASE_PATH, createBullBoardRoutes());
+
+app.doc("/openapi.json", {
+  openapi: "3.0.0",
+  info: {
+    title: "Sistema de Reservas de Mesas",
+    version: "1.0.0",
+    description: "Backend de estudo aplicado (system design): cache, fila e arquitetura hexagonal.",
+  },
+});
+app.get("/docs", Scalar({ url: "/openapi.json" }));
 
 app.onError(errorHandler);

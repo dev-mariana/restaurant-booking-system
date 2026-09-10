@@ -1,26 +1,45 @@
-import type { Context } from "hono";
-import { z } from "zod";
+import { createRoute, type RouteHandler, z } from "@hono/zod-openapi";
 import { ReservationResponseDTO } from "../../../../application/reservation/schemas/reservation-response.dto.js";
 import type { ListReservationsByEmailService } from "../../../../application/reservation/services/list-reservations-by-email.service.js";
-import { BadRequestError } from "../../../../common/errors/bad-request-error.js";
-import { formatZodError } from "../../../../common/helpers/format-zod-error.js";
+import { reservationSchema } from "../../openapi/schemas.js";
 
 const listReservationsQuerySchema = z.object({
-  email: z.email(),
+  email: z
+    .email()
+    .openapi({
+      param: { name: "email", in: "query" },
+      example: "ana@example.com",
+    }),
+});
+
+export const listReservationsByEmailRoute = createRoute({
+  method: "get",
+  path: "/",
+  tags: ["Reservations"],
+  summary: "List a customer's reservations by email",
+  request: {
+    query: listReservationsQuerySchema,
+  },
+  responses: {
+    200: {
+      content: { "application/json": { schema: z.array(reservationSchema) } },
+      description: "The customer's reservations",
+    },
+  },
 });
 
 export function listReservationsByEmailController(
   listReservationsByEmailService: ListReservationsByEmailService,
-) {
-  return async (c: Context) => {
-    const parsed = listReservationsQuerySchema.safeParse(c.req.query());
+): RouteHandler<typeof listReservationsByEmailRoute> {
+  return async (c) => {
+    const { email } = c.req.valid("query");
 
-    if (!parsed.success) {
-      throw new BadRequestError("Invalid query parameters", formatZodError(parsed.error));
-    }
+    const reservations = await listReservationsByEmailService.execute(email);
 
-    const reservations = await listReservationsByEmailService.execute(parsed.data.email);
-
-    return c.json(reservations.map((reservation) => new ReservationResponseDTO(reservation)));
+    return c.json(
+      reservations.map(
+        (reservation) => new ReservationResponseDTO(reservation),
+      ) as unknown as z.infer<typeof reservationSchema>[],
+    );
   };
 }
