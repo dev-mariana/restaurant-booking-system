@@ -4,12 +4,10 @@ import type { ListReservationsByEmailService } from "../../../../application/res
 import { reservationSchema } from "../../openapi/schemas.js";
 
 const listReservationsQuerySchema = z.object({
-  email: z
-    .email()
-    .openapi({
-      param: { name: "email", in: "query" },
-      example: "ana@example.com",
-    }),
+  email: z.email().openapi({
+    param: { name: "email", in: "query" },
+    example: "ana@example.com",
+  }),
 });
 
 export const listReservationsByEmailRoute = createRoute({

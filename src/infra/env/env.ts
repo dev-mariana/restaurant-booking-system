@@ -13,6 +13,7 @@ const envSchema = z.object({
   CONFIRM_RESERVATION_JOB_NAME: z.string().min(1),
   WORKER_CONCURRENCY: z.coerce.number().int().positive(),
   BULL_BOARD_BASE_PATH: z.string().min(1),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

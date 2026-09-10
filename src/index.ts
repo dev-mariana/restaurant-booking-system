@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { app } from "./app.js";
+import { logger } from "./infra/logger/logger.js";
 
 serve(
   {
@@ -7,6 +8,6 @@ serve(
     port: 3000,
   },
   (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
+    logger.info(`Server is running on http://localhost:${info.port}`);
   },
 );

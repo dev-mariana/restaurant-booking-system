@@ -1,11 +1,7 @@
 import { createRoute, type RouteHandler, type z } from "@hono/zod-openapi";
 import { ReservationResponseDTO } from "../../../../application/reservation/schemas/reservation-response.dto.js";
 import type { CancelReservationService } from "../../../../application/reservation/services/cancel-reservation.service.js";
-import {
-  errorResponseSchema,
-  idParamSchema,
-  reservationSchema,
-} from "../../openapi/schemas.js";
+import { errorResponseSchema, idParamSchema, reservationSchema } from "../../openapi/schemas.js";
 
 export const cancelReservationRoute = createRoute({
   method: "delete",
@@ -40,9 +36,7 @@ export function cancelReservationController(
     const reservation = await cancelReservationService.execute(id);
 
     return c.json(
-      new ReservationResponseDTO(reservation) as unknown as z.infer<
-        typeof reservationSchema
-      >,
+      new ReservationResponseDTO(reservation) as unknown as z.infer<typeof reservationSchema>,
       200,
     );
   };

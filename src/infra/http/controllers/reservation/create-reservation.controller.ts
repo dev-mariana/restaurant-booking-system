@@ -2,17 +2,13 @@ import { createRoute, type RouteHandler, type z } from "@hono/zod-openapi";
 import { createReservationSchema } from "../../../../application/reservation/schemas/create-reservation.schema.js";
 import { ReservationResponseDTO } from "../../../../application/reservation/schemas/reservation-response.dto.js";
 import type { CreateReservationService } from "../../../../application/reservation/services/create-reservation.service.js";
-import {
-  badRequestResponseSchema,
-  reservationSchema,
-} from "../../openapi/schemas.js";
+import { badRequestResponseSchema, reservationSchema } from "../../openapi/schemas.js";
 
 export const createReservationRoute = createRoute({
   method: "post",
   path: "/",
   tags: ["Reservations"],
-  summary:
-    "Request a reservation (always created as pending, confirmed asynchronously)",
+  summary: "Request a reservation (always created as pending, confirmed asynchronously)",
   request: {
     body: {
       content: { "application/json": { schema: createReservationSchema } },
@@ -39,9 +35,7 @@ export function createReservationController(
     const reservation = await createReservationService.execute(data);
 
     return c.json(
-      new ReservationResponseDTO(reservation) as unknown as z.infer<
-        typeof reservationSchema
-      >,
+      new ReservationResponseDTO(reservation) as unknown as z.infer<typeof reservationSchema>,
       202,
     );
   };

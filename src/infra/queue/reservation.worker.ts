@@ -2,6 +2,7 @@ import { Worker } from "bullmq";
 import { Redis } from "ioredis";
 import type { ConfirmReservationService } from "../../application/reservation/services/confirm-reservation.service.js";
 import { env } from "../env/env.js";
+import { logger } from "../logger/logger.js";
 import type { ConfirmReservationJobData } from "./bullmq.queue.adapter.js";
 
 const tableLocks = new Map<string, Promise<void>>();
@@ -28,6 +29,8 @@ export function makeReservationWorker(
     env.RESERVATION_QUEUE_NAME,
     async (job) => {
       const { reservationId, tableId } = job.data;
+
+      logger.info({ reservationId, tableId }, "Processing reservation confirmation");
 
       await runSerializedByTable(tableId, () => confirmReservationService.execute(reservationId));
     },

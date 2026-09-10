@@ -8,9 +8,7 @@ import {
 } from "../../openapi/schemas.js";
 
 const availabilityQuerySchema = z.object({
-  date: z.coerce
-    .date()
-    .openapi({ param: { name: "date", in: "query" }, example: "2026-09-15" }),
+  date: z.coerce.date().openapi({ param: { name: "date", in: "query" }, example: "2026-09-15" }),
 });
 
 export const findTableAvailabilityRoute = createRoute({
@@ -49,9 +47,6 @@ export function findTableAvailabilityController(
 
     const slots = await getAvailabilityService.execute(id, date);
 
-    return c.json(
-      slots as unknown as z.infer<typeof availabilitySlotSchema>[],
-      200,
-    );
+    return c.json(slots as unknown as z.infer<typeof availabilitySlotSchema>[], 200);
   };
 }

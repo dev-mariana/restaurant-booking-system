@@ -1,11 +1,7 @@
 import { createRoute, type RouteHandler, type z } from "@hono/zod-openapi";
 import { ReservationResponseDTO } from "../../../../application/reservation/schemas/reservation-response.dto.js";
 import type { GetReservationService } from "../../../../application/reservation/services/get-reservation.service.js";
-import {
-  errorResponseSchema,
-  idParamSchema,
-  reservationSchema,
-} from "../../openapi/schemas.js";
+import { errorResponseSchema, idParamSchema, reservationSchema } from "../../openapi/schemas.js";
 
 export const findReservationRoute = createRoute({
   method: "get",
@@ -36,9 +32,7 @@ export function findReservationController(
     const reservation = await getReservationService.execute(id);
 
     return c.json(
-      new ReservationResponseDTO(reservation) as unknown as z.infer<
-        typeof reservationSchema
-      >,
+      new ReservationResponseDTO(reservation) as unknown as z.infer<typeof reservationSchema>,
       200,
     );
   };

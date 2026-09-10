@@ -1,5 +1,6 @@
 import { makeConfirmReservationService } from "./infra/factories/make-confirm-reservation-service.js";
 import { makeDependencies } from "./infra/factories/make-dependencies.js";
+import { logger } from "./infra/logger/logger.js";
 import { makeReservationWorker } from "./infra/queue/reservation.worker.js";
 
 const dependencies = makeDependencies();
@@ -8,14 +9,17 @@ const confirmReservationService = makeConfirmReservationService(dependencies);
 const worker = makeReservationWorker(confirmReservationService);
 
 worker.on("completed", (job) => {
-  console.log(`Reservation ${job.data.reservationId} processed.`);
+  logger.info({ reservationId: job.data.reservationId }, "Reservation processed");
 });
 
 worker.on("failed", (job, error) => {
-  console.error(`Reservation ${job?.data.reservationId} failed to process.`, error);
+  logger.error(
+    { reservationId: job?.data.reservationId, err: error },
+    "Reservation failed to process",
+  );
 });
 
-console.log("Reservation worker started.");
+logger.info("Reservation worker started");
 
 async function shutdown(): Promise<void> {
   await worker.close();

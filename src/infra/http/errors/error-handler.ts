@@ -2,6 +2,7 @@ import type { Context } from "hono";
 import { BadRequestError } from "../../../common/errors/bad-request-error.js";
 import { ConflictError } from "../../../common/errors/conflict-error.js";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
+import { logger } from "../../logger/logger.js";
 
 export function errorHandler(err: Error, c: Context): Response {
   if (err instanceof NotFoundError) {
@@ -16,7 +17,7 @@ export function errorHandler(err: Error, c: Context): Response {
     return c.json({ message: err.message, details: err.details }, 400);
   }
 
-  console.error(err);
+  logger.error({ err }, "Unhandled error");
 
   return c.json({ message: "Internal server error" }, 500);
 }

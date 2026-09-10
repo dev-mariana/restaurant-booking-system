@@ -10,6 +10,7 @@ import { makeListReservationsByEmailService } from "./infra/factories/make-list-
 import { makeListTablesService } from "./infra/factories/make-list-tables-service.js";
 import { createBullBoardRoutes } from "./infra/http/bull-board.routes.js";
 import { errorHandler } from "./infra/http/errors/error-handler.js";
+import { httpLogger } from "./infra/http/middlewares/http-logger.js";
 import { createReservationRoutes } from "./infra/http/reservation.routes.js";
 import { createTableRoutes } from "./infra/http/table.routes.js";
 
@@ -23,6 +24,8 @@ const listReservationsByEmailService = makeListReservationsByEmailService(depend
 const cancelReservationService = makeCancelReservationService(dependencies);
 
 export const app = new OpenAPIHono();
+
+app.use(httpLogger);
 
 app.route("/tables", createTableRoutes(listTablesService, getAvailabilityService));
 app.route(
