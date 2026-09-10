@@ -7,5 +7,6 @@ export function makeConfirmReservationService(
   return new ConfirmReservationService(
     dependencies.reservationRepository,
     dependencies.cacheRepository,
+    dependencies.logger,
   );
 }

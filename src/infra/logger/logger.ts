@@ -1,4 +1,7 @@
 import pino from "pino";
+import type { ILogger } from "../../domain/logger/logger.js";
 import { env } from "../env/env.js";
 
-export const logger = pino({ level: env.LOG_LEVEL });
+const pinoInstance = pino({ level: env.LOG_LEVEL });
+
+export const logger: ILogger & pino.Logger = pinoInstance;

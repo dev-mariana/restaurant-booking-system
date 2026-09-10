@@ -5,5 +5,6 @@ export function makeCancelReservationService(dependencies: Dependencies): Cancel
   return new CancelReservationService(
     dependencies.reservationRepository,
     dependencies.cacheRepository,
+    dependencies.logger,
   );
 }

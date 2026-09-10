@@ -1,6 +1,7 @@
 import { ConflictError } from "../../../common/errors/conflict-error.js";
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
+import { type ILogger, noopLogger } from "../../../domain/logger/logger.js";
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
@@ -12,6 +13,7 @@ export class CancelReservationService {
   constructor(
     private readonly reservationRepository: IReservationRepository,
     private readonly cacheRepository: ICacheRepository,
+    private readonly logger: ILogger = noopLogger,
   ) {}
 
   async execute(reservationId: string): Promise<Reservation> {
@@ -33,6 +35,11 @@ export class CancelReservationService {
     );
 
     await invalidateAvailabilityCache(this.cacheRepository, reservation);
+
+    this.logger.info(
+      { reservationId, tableId: reservation.tableId, previousStatus: reservation.status },
+      "Reservation cancelled",
+    );
 
     return updated;
   }

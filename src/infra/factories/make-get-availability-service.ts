@@ -6,5 +6,6 @@ export function makeGetAvailabilityService(dependencies: Dependencies): GetAvail
     dependencies.tableRepository,
     dependencies.reservationRepository,
     dependencies.cacheRepository,
+    dependencies.logger,
   );
 }

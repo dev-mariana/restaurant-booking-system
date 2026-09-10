@@ -6,5 +6,6 @@ export function makeCreateReservationService(dependencies: Dependencies): Create
     dependencies.tableRepository,
     dependencies.reservationRepository,
     dependencies.reservationQueue,
+    dependencies.logger,
   );
 }

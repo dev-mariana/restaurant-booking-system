@@ -1,6 +1,7 @@
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import { getDayRange } from "../../../common/helpers/day-range.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
+import { type ILogger, noopLogger } from "../../../domain/logger/logger.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
 import {
   type AvailabilitySlot,
@@ -16,6 +17,7 @@ export class GetAvailabilityService {
     private readonly tableRepository: ITableRepository,
     private readonly reservationRepository: IReservationRepository,
     private readonly cacheRepository: ICacheRepository,
+    private readonly logger: ILogger = noopLogger,
   ) {}
 
   async execute(tableId: string, date: Date): Promise<AvailabilitySlot[]> {
@@ -31,8 +33,12 @@ export class GetAvailabilityService {
     const cached = await this.cacheRepository.get<AvailabilitySlot[]>(cacheKey);
 
     if (cached) {
+      this.logger.info({ tableId, cacheKey }, "Availability cache hit");
+
       return cached;
     }
+
+    this.logger.info({ tableId, cacheKey }, "Availability cache miss");
 
     return this.cacheAvailability(tableId, dayStart, cacheKey);
   }

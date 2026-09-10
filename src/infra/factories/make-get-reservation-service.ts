@@ -2,5 +2,5 @@ import { GetReservationService } from "../../application/reservation/services/ge
 import type { Dependencies } from "./make-dependencies.js";
 
 export function makeGetReservationService(dependencies: Dependencies): GetReservationService {
-  return new GetReservationService(dependencies.reservationRepository);
+  return new GetReservationService(dependencies.reservationRepository, dependencies.logger);
 }

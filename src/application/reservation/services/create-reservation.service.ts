@@ -1,6 +1,7 @@
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import { createId } from "../../../common/helpers/generate-id.js";
 import { createTimeSlot } from "../../../common/helpers/time-slot.js";
+import { type ILogger, noopLogger } from "../../../domain/logger/logger.js";
 import type { IReservationQueue } from "../../../domain/queue/reservation-queue.js";
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
@@ -13,6 +14,7 @@ export class CreateReservationService {
     private readonly tableRepository: ITableRepository,
     private readonly reservationRepository: IReservationRepository,
     private readonly reservationQueue: IReservationQueue,
+    private readonly logger: ILogger = noopLogger,
   ) {}
 
   async execute(dto: CreateReservationDTO): Promise<Reservation> {
@@ -37,6 +39,11 @@ export class CreateReservationService {
     const created = await this.reservationRepository.create(reservation);
 
     await this.reservationQueue.enqueueConfirmation(created.id, created.tableId);
+
+    this.logger.info(
+      { reservationId: created.id, tableId: created.tableId },
+      "Reservation created as pending, queued for confirmation",
+    );
 
     return created;
   }

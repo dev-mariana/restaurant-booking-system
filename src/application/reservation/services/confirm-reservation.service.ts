@@ -1,6 +1,7 @@
 import { NotFoundError } from "../../../common/errors/not-found-error.js";
 import { timeSlotsOverlap } from "../../../common/helpers/time-slot.js";
 import type { ICacheRepository } from "../../../domain/cache/cache.repository.js";
+import { type ILogger, noopLogger } from "../../../domain/logger/logger.js";
 import type { Reservation } from "../../../domain/reservation/reservation.entity.js";
 import { ReservationStatus } from "../../../domain/reservation/reservation.entity.js";
 import type { IReservationRepository } from "../../../domain/reservation/reservation.repository.js";
@@ -10,6 +11,7 @@ export class ConfirmReservationService {
   constructor(
     private readonly reservationRepository: IReservationRepository,
     private readonly cacheRepository: ICacheRepository,
+    private readonly logger: ILogger = noopLogger,
   ) {}
 
   async execute(reservationId: string): Promise<Reservation> {
@@ -30,6 +32,11 @@ export class ConfirmReservationService {
     const updated = await this.reservationRepository.updateStatus(reservationId, status);
 
     await invalidateAvailabilityCache(this.cacheRepository, reservation);
+
+    this.logger.info(
+      { reservationId, tableId: reservation.tableId, status },
+      "Reservation resolved",
+    );
 
     return updated;
   }
